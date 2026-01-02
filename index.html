@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ethics Under Pressure: The AI Dilemma Board</title>
+
+<style>
+:root{
+  --vone:#4797cd;
+  --bg:#0d1224;
+  --card:#1b233b;
+  --text:#eef3f8;
+  --muted:#aab4c3;
+  --border:#2b3550;
+  --good:#2ecc71;
+  --warn:#f1c40f;
+  --bad:#ff5252;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:radial-gradient(900px 500px at 20% 10%, rgba(71,151,205,.25), transparent 60%), var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.app{
+  width:100%;
+  max-width:1000px;
+  background:rgba(13,18,36,.95);
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+}
+
+header{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+}
+header h1{margin:0;font-size:18px}
+header p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+
+main{
+  padding:20px;
+  display:grid;
+  grid-template-columns:1.35fr .65fr;
+  gap:18px;
+}
+@media(max-width:900px){ main{grid-template-columns:1fr} }
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+
+.howto{
+  background:rgba(71,151,205,.12);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:14px;
+}
+.howto h2{margin:0 0 6px;font-size:14px}
+.howto ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
+.howto li{margin:6px 0}
+
+h3{margin:0 0 8px;font-size:16px}
+p{margin:0 0 12px;font-size:14px;line-height:1.45;color:var(--muted)}
+
+.dilemma{
+  font-size:15px;
+  color:var(--text);
+  margin-bottom:12px;
+}
+
+.buttons{display:grid;gap:10px}
+button{
+  background:#10172a;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:12px;
+  border-radius:14px;
+  font-size:14px;
+  cursor:pointer;
+}
+button:hover{border-color:var(--vone)}
+button:disabled{opacity:.6;cursor:not-allowed}
+
+.feedback{
+  display:none;
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-size:13px;
+  line-height:1.35;
+  white-space:pre-wrap;
+}
+.feedback.good{background:rgba(46,204,113,.12)}
+.feedback.warn{background:rgba(241,196,15,.12)}
+.feedback.bad{background:rgba(255,82,82,.12)}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.btn{
+  background:#0f172a;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:13px;
+}
+.btn.primary{
+  background:rgba(71,151,205,.22);
+  border-color:rgba(71,151,205,.55);
+}
+
+.sidebar h4{font-size:13px;margin:0 0 8px}
+.meter{
+  height:10px;
+  background:#0f172a;
+  border:1px solid var(--border);
+  border-radius:999px;
+  overflow:hidden;
+}
+.fill{height:100%;background:var(--vone);width:0%}
+
+.stat{margin-top:14px;font-size:13px}
+.stat strong{display:block;font-size:18px;margin-top:4px}
+
+.codebox{
+  display:none;
+  margin-top:14px;
+  padding:12px;
+  border:1px dashed var(--border);
+  border-radius:12px;
+  background:#0f172a;
+}
+.code{
+  font-family:monospace;
+  font-size:16px;
+  margin-top:6px;
+}
+.small{font-size:12px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+
+<body>
+<div class="app">
+<header>
+  <h1>Ethics Under Pressure: The AI Dilemma Board</h1>
+  <p>Week 3 · Bias, transparency, consent, privacy, fairness, and misinformation</p>
+</header>
+
+<main>
+<section class="card">
+  <div class="howto">
+    <h2>How to play</h2>
+    <ul>
+      <li>You are part of an AI Ethics Review Board.</li>
+      <li>Review each real-world AI dilemma.</li>
+      <li>Decide how the system should be handled.</li>
+      <li>See how ethical choices protect trust.</li>
+    </ul>
+  </div>
+
+  <h3 id="title"></h3>
+  <p class="dilemma" id="dilemma"></p>
+
+  <div class="buttons" id="choices"></div>
+  <div class="feedback" id="feedback"></div>
+
+  <div class="actions">
+    <button class="btn primary" id="nextBtn" disabled>Continue</button>
+    <button class="btn" id="restartBtn">Restart</button>
+  </div>
+
+  <div class="codebox" id="codeBox">
+    <strong>Completion Code</strong>
+    <div class="code" id="code"></div>
+    <p class="small" id="scoreMeaning"></p>
+    <div class="actions">
+      <button class="btn primary" onclick="location.reload()">Play Again</button>
+      <a class="btn" href="https://voneacademy.com/courses">Exit</a>
+    </div>
+  </div>
+</section>
+
+<aside class="card sidebar">
+  <h4>Ethics Score</h4>
+  <div class="meter"><div class="fill" id="ethicsFill"></div></div>
+
+  <div class="stat">
+    Score
+    <strong id="score">0</strong>
+  </div>
+
+  <div class="stat">
+    Status
+    <strong id="status">Reviewing</strong>
+  </div>
+
+  <p class="small">
+    Ethical AI requires fairness, transparency, consent, and accountability — not just performance.
+  </p>
+</aside>
+</main>
+</div>
+
+<script>
+const dilemmas=[
+{
+ title:"Dilemma 1: Biased Training Data",
+ text:"An AI hiring tool performs well overall but consistently ranks candidates from certain backgrounds lower due to historical data.",
+ correct:1,
+ options:[
+  "Approve the system because it is efficient",
+  "Require changes, bias testing, and human oversight",
+  "Use it quietly without telling applicants"
+ ],
+ explain:"Bias often enters through data. Governance requires identifying bias and adding safeguards before using AI in decisions that affect people."
+},
+{
+ title:"Dilemma 2: Lack of Explainability",
+ text:"A loan applicant is denied by an AI system, but the organization cannot explain why the decision was made.",
+ correct:1,
+ options:[
+  "Accept the decision because the model is accurate",
+  "Pause use until explanations and review processes exist",
+  "Tell applicants the decision is final without details"
+ ],
+ explain:"When AI affects people’s opportunities, transparency and explainability are critical for trust and accountability."
+},
+{
+ title:"Dilemma 3: Consent & Privacy",
+ text:"A company uses customer data to train an AI model, even though users did not clearly consent to this use.",
+ correct:1,
+ options:[
+  "Use the data since it improves accuracy",
+  "Require clear consent and data protection controls",
+  "Hide the training purpose in fine print"
+ ],
+ explain:"Ethical AI respects privacy and informed consent. Data use without clarity erodes trust."
+},
+{
+ title:"Dilemma 4: Autonomy",
+ text:"An AI system automatically schedules employee shifts with no option for human review or appeal.",
+ correct:1,
+ options:[
+  "Allow full automation for efficiency",
+  "Add human review and appeal options",
+  "Tell employees the system cannot be questioned"
+ ],
+ explain:"AI should support, not remove, human autonomy — especially in workplace decisions."
+},
+{
+ title:"Dilemma 5: Digital Divide",
+ text:"An AI-powered service assumes all users have fast internet and modern devices.",
+ correct:1,
+ options:[
+  "Deploy anyway because most users are fine",
+  "Design alternatives to avoid excluding groups",
+  "Ignore access issues"
+ ],
+ explain:"Fairness includes access. Ethical AI considers who may be excluded by design choices."
+},
+{
+ title:"Dilemma 6: Synthetic Media & Misinformation",
+ text:"An AI tool can generate realistic videos of people saying things they never said.",
+ correct:1,
+ options:[
+  "Release it publicly without safeguards",
+  "Add clear labeling, restrictions, and oversight",
+  "Encourage viral use for engagement"
+ ],
+ explain:"Synthetic media increases misinformation risk. Governance is essential to prevent harm and abuse."
+}
+];
+
+let idx=0;
+let score=0;
+
+const titleEl=document.getElementById("title");
+const dilemmaEl=document.getElementById("dilemma");
+const choicesEl=document.getElementById("choices");
+const feedbackEl=document.getElementById("feedback");
+const nextBtn=document.getElementById("nextBtn");
+const restartBtn=document.getElementById("restartBtn");
+
+const ethicsFill=document.getElementById("ethicsFill");
+const scoreEl=document.getElementById("score");
+const statusEl=document.getElementById("status");
+
+const codeBox=document.getElementById("codeBox");
+const codeEl=document.getElementById("code");
+const scoreMeaningEl=document.getElementById("scoreMeaning");
+
+function update(){
+ const d=dilemmas[idx];
+ titleEl.textContent=d.title;
+ dilemmaEl.textContent=d.text;
+ feedbackEl.style.display="none";
+ nextBtn.disabled=true;
+ choicesEl.innerHTML="";
+ d.options.forEach((o,i)=>{
+  const b=document.createElement("button");
+  b.textContent=o;
+  b.onclick=()=>select(i);
+  choicesEl.appendChild(b);
+ });
+}
+
+function select(i){
+ const d=dilemmas[idx];
+ const correct=(i===d.correct);
+ score+=correct?15:6;
+ score=Math.min(score,100);
+ ethicsFill.style.width=score+"%";
+ scoreEl.textContent=score;
+ statusEl.textContent=score>=80?"Ethics Aware":"Learning Ethics";
+
+ feedbackEl.className="feedback "+(correct?"good":"warn");
+ feedbackEl.textContent=(correct?"✅ Responsible choice.\n\n":"⚠️ Risky choice.\n\n")+d.explain;
+ feedbackEl.style.display="block";
+
+ [...choicesEl.children].forEach(b=>b.disabled=true);
+ nextBtn.disabled=false;
+}
+
+nextBtn.onclick=()=>{
+ idx++;
+ if(idx<dilemmas.length){
+  update();
+ }else{
+  finish();
+ }
+};
+
+function finish(){
+ titleEl.textContent="Ethics Review Complete";
+ dilemmaEl.textContent="You evaluated ethical risks across real AI use cases and saw why governance and oversight protect trust.";
+ choicesEl.innerHTML="";
+ feedbackEl.style.display="none";
+ nextBtn.style.display="none";
+ restartBtn.style.display="none";
+
+ const code="VONE-AI-W3-"+score+"-"+Math.floor(100+Math.random()*900);
+ codeEl.textContent=code;
+
+ scoreMeaningEl.textContent=
+  score>=80
+   ?"Strong result: You can identify ethical risks and explain why oversight matters."
+   :score>=60
+    ?"Good foundation: Review bias, consent, and transparency challenges."
+    :"Starter level: Replay and focus on fairness, privacy, and accountability.";
+
+ codeBox.style.display="block";
+ statusEl.textContent="Completed";
+}
+
+restartBtn.onclick=()=>location.reload();
+update();
+</script>
+</body>
+</html>
